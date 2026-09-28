@@ -11,63 +11,53 @@ public class Project {
     private Long id;
 
     private String name;
-
     private String description;
-
     private Double budget;
 
-    private String status;
+    // Combined status field with default value
+    private String status = "Healthy";
+    // New intelligence fields
+    private Integer health = 100;
+    private Integer activeRisks = 0;
+
     @OneToMany(mappedBy = "project", cascade = CascadeType.ALL)
     private java.util.List<Task> tasks;
+
     @OneToMany(mappedBy = "project", cascade = CascadeType.ALL)
     private java.util.List<Alert> alerts;
+
     @OneToMany(mappedBy = "project", cascade = CascadeType.ALL)
     private java.util.List<Recommendation> recommendations;
+
     @OneToMany(mappedBy = "project", cascade = CascadeType.ALL)
     private java.util.List<Milestone> milestones;
 
     @OneToMany(mappedBy = "project", cascade = CascadeType.ALL)
     private java.util.List<Risk> risks;
+
     public Project() {
     }
 
-    public Long getId() {
-        return id;
-    }
+    // --- Getters and Setters ---
 
-    public void setId(Long id) {
-        this.id = id;
-    }
+    public Long getId() { return id; }
+    public void setId(Long id) { this.id = id; }
 
-    public String getName() {
-        return name;
-    }
+    public String getName() { return name; }
+    public void setName(String name) { this.name = name; }
 
-    public void setName(String name) {
-        this.name = name;
-    }
+    public String getDescription() { return description; }
+    public void setDescription(String description) { this.description = description; }
 
-    public String getDescription() {
-        return description;
-    }
+    public Double getBudget() { return budget; }
+    public void setBudget(Double budget) { this.budget = budget; }
 
-    public void setDescription(String description) {
-        this.description = description;
-    }
+    public String getStatus() { return status; }
+    public void setStatus(String status) { this.status = status; }
 
-    public Double getBudget() {
-        return budget;
-    }
+    public Integer getHealth() { return health; }
+    public void setHealth(Integer health) { this.health = health; }
 
-    public void setBudget(Double budget) {
-        this.budget = budget;
-    }
-
-    public String getStatus() {
-        return status;
-    }
-
-    public void setStatus(String status) {
-        this.status = status;
-    }
+    public Integer getActiveRisks() { return activeRisks; }
+    public void setActiveRisks(Integer activeRisks) { this.activeRisks = activeRisks; }
 }
