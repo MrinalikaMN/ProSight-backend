@@ -17,6 +17,8 @@ public class TaskController {
         this.taskService = taskService;
     }
 
+    // --- Standard Endpoints ---
+
     @PostMapping
     public Task createTask(@RequestBody Task task) {
         return taskService.createTask(task);
@@ -25,5 +27,17 @@ public class TaskController {
     @GetMapping
     public List<Task> getAllTasks() {
         return taskService.getAllTasks();
+    }
+
+    // --- New Project-Specific Endpoints ---
+
+    @GetMapping("/project/{projectId}")
+    public List<Task> getTasksByProject(@PathVariable Long projectId) {
+        return taskService.getTasksByProjectId(projectId);
+    }
+
+    @PostMapping("/project/{projectId}")
+    public Task createTaskForProject(@PathVariable Long projectId, @RequestBody Task task) {
+        return taskService.createTaskForProject(projectId, task);
     }
 }
