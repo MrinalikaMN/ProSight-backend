@@ -3,6 +3,7 @@ package ProSight.controller;
 import ProSight.entity.Project;
 import ProSight.service.ProjectService;
 import ProSight.risk.RiskAnalysisService;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -28,6 +29,26 @@ public class ProjectController {
     @PostMapping
     public Project createProject(@RequestBody Project project) {
         return projectService.createProject(project);
+    }
+
+    // NEW: Properly placed inside the class and adapted to use ProjectService
+    @PutMapping("/{id}")
+    public ResponseEntity<Project> updateProject(@PathVariable Long id, @RequestBody Project projectDetails) {
+        Project existingProject = projectService.getProjectById(id);
+
+        if (existingProject == null) {
+            return ResponseEntity.notFound().build();
+        }
+
+        existingProject.setName(projectDetails.getName());
+        existingProject.setDescription(projectDetails.getDescription());
+        existingProject.setBudget(projectDetails.getBudget());
+        existingProject.setStatus(projectDetails.getStatus());
+        existingProject.setHealth(projectDetails.getHealth());
+
+        // Reusing createProject to save the updated entity back to the database
+        Project updatedProject = projectService.createProject(existingProject);
+        return ResponseEntity.ok(updatedProject);
     }
 
     @GetMapping("/analyze-risk")
@@ -62,11 +83,19 @@ public class ProjectController {
         }
 
         return riskAnalysisService.checkScheduleAndWarn(project, expected, actual);
-    } // <-- You were missing this closing brace!
+    }
 
-    // NEW: Delete method placed OUTSIDE the previous method
     @DeleteMapping("/{id}")
     public void deleteProject(@PathVariable Long id) {
         projectService.deleteProject(id);
     }
-} // <-- This closes the entire ProjectController class
+    // NEW: Fetch a single project by its ID
+    @GetMapping("/{id}")
+    public ResponseEntity<Project> getProjectById(@PathVariable Long id) {
+        Project project = projectService.getProjectById(id);
+        if (project == null) {
+            return ResponseEntity.notFound().build();
+        }
+        return ResponseEntity.ok(project);
+    }
+}
