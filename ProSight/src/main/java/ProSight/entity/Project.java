@@ -1,6 +1,8 @@
 package ProSight.entity;
 
 import jakarta.persistence.*;
+import java.util.List;
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 
 @Entity
 @Table(name = "projects")
@@ -11,53 +13,27 @@ public class Project {
     private Long id;
 
     private String name;
-    private String description;
     private Double budget;
+    private Integer health;
 
-    // Combined status field with default value
-    private String status = "Healthy";
-    // New intelligence fields
-    private Integer health = 100;
-    private Integer activeRisks = 0;
+    // One Project has Many Tasks
+    @OneToMany(mappedBy = "project", cascade = CascadeType.ALL, orphanRemoval = true)
+    @JsonManagedReference
+    private List<Task> tasks;
 
-    @OneToMany(mappedBy = "project", cascade = CascadeType.ALL)
-    private java.util.List<Task> tasks;
-
-    @OneToMany(mappedBy = "project", cascade = CascadeType.ALL)
-    private java.util.List<Alert> alerts;
-
-    @OneToMany(mappedBy = "project", cascade = CascadeType.ALL)
-    private java.util.List<Recommendation> recommendations;
-
-    @OneToMany(mappedBy = "project", cascade = CascadeType.ALL)
-    private java.util.List<Milestone> milestones;
-
-    @OneToMany(mappedBy = "project", cascade = CascadeType.ALL)
-    private java.util.List<Risk> risks;
-
-    public Project() {
-    }
-
-    // --- Getters and Setters ---
-
+    // Getters and Setters
     public Long getId() { return id; }
     public void setId(Long id) { this.id = id; }
 
     public String getName() { return name; }
     public void setName(String name) { this.name = name; }
 
-    public String getDescription() { return description; }
-    public void setDescription(String description) { this.description = description; }
-
     public Double getBudget() { return budget; }
     public void setBudget(Double budget) { this.budget = budget; }
-
-    public String getStatus() { return status; }
-    public void setStatus(String status) { this.status = status; }
 
     public Integer getHealth() { return health; }
     public void setHealth(Integer health) { this.health = health; }
 
-    public Integer getActiveRisks() { return activeRisks; }
-    public void setActiveRisks(Integer activeRisks) { this.activeRisks = activeRisks; }
+    public List<Task> getTasks() { return tasks; }
+    public void setTasks(List<Task> tasks) { this.tasks = tasks; }
 }

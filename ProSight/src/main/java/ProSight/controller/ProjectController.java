@@ -31,7 +31,6 @@ public class ProjectController {
         return projectService.createProject(project);
     }
 
-    // NEW: Properly placed inside the class and adapted to use ProjectService
     @PutMapping("/{id}")
     public ResponseEntity<Project> updateProject(@PathVariable Long id, @RequestBody Project projectDetails) {
         Project existingProject = projectService.getProjectById(id);
@@ -41,12 +40,9 @@ public class ProjectController {
         }
 
         existingProject.setName(projectDetails.getName());
-        existingProject.setDescription(projectDetails.getDescription());
         existingProject.setBudget(projectDetails.getBudget());
-        existingProject.setStatus(projectDetails.getStatus());
         existingProject.setHealth(projectDetails.getHealth());
 
-        // Reusing createProject to save the updated entity back to the database
         Project updatedProject = projectService.createProject(existingProject);
         return ResponseEntity.ok(updatedProject);
     }
@@ -89,7 +85,7 @@ public class ProjectController {
     public void deleteProject(@PathVariable Long id) {
         projectService.deleteProject(id);
     }
-    // NEW: Fetch a single project by its ID
+
     @GetMapping("/{id}")
     public ResponseEntity<Project> getProjectById(@PathVariable Long id) {
         Project project = projectService.getProjectById(id);

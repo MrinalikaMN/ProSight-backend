@@ -1,7 +1,7 @@
 package ProSight.entity;
 
 import jakarta.persistence.*;
-import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonBackReference;
 
 @Entity
 @Table(name = "tasks")
@@ -11,38 +11,21 @@ public class Task {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    private String name;
+    private String description;
+    private String status;
 
-    // To track utilization (e.g., "Backend", "Frontend", "QA")
-    private String assignedTeam;
-
-    // To feed the Early Warning Algorithm
-    private Double expectedDays;
-    private Double actualDays;
-    private String status = "In Progress"; // "To Do", "In Progress", "Done"
-
-    @ManyToOne
+    // Many Tasks belong to One Project
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "project_id", nullable = false)
-    @JsonIgnore // Prevents infinite recursion when fetching projects
+    @JsonBackReference
     private Project project;
 
-    public Task() {}
-
-    // --- Getters and Setters ---
+    // Getters and Setters
     public Long getId() { return id; }
     public void setId(Long id) { this.id = id; }
 
-    public String getName() { return name; }
-    public void setName(String name) { this.name = name; }
-
-    public String getAssignedTeam() { return assignedTeam; }
-    public void setAssignedTeam(String assignedTeam) { this.assignedTeam = assignedTeam; }
-
-    public Double getExpectedDays() { return expectedDays; }
-    public void setExpectedDays(Double expectedDays) { this.expectedDays = expectedDays; }
-
-    public Double getActualDays() { return actualDays; }
-    public void setActualDays(Double actualDays) { this.actualDays = actualDays; }
+    public String getDescription() { return description; }
+    public void setDescription(String description) { this.description = description; }
 
     public String getStatus() { return status; }
     public void setStatus(String status) { this.status = status; }
