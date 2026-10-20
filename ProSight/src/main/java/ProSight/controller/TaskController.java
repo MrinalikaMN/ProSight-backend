@@ -1,43 +1,48 @@
 package ProSight.controller;
 
+import ProSight.entity.Project;
 import ProSight.entity.Task;
-import ProSight.service.TaskService;
+import ProSight.repository.TaskRepository;
+import ProSight.service.ProjectService;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
 @RestController
-@RequestMapping("/api/tasks")
+@RequestMapping("/api/projects")
 @CrossOrigin(origins = "*")
 public class TaskController {
 
-    private final TaskService taskService;
+    private final TaskRepository taskRepository;
+    private final ProjectService projectService;
 
-    public TaskController(TaskService taskService) {
-        this.taskService = taskService;
+    public TaskController(TaskRepository taskRepository, ProjectService projectService) {
+        this.taskRepository = taskRepository;
+        this.projectService = projectService;
     }
 
-    // --- Standard Endpoints ---
-
-    @PostMapping
-    public Task createTask(@RequestBody Task task) {
-        return taskService.createTask(task);
+    @GetMapping("/{projectId}/tasks")
+    public List<Task> getProjectTasks(@PathVariable Long projectId) {
+        return taskRepository.findByProjectId(projectId);
     }
 
-    @GetMapping
-    public List<Task> getAllTasks() {
-        return taskService.getAllTasks();
-    }
+    @PostMapping("/{projectId}/tasks")
+    public ResponseEntity<Task> addTaskToProject(@PathVariable Long projectId, @RequestBody Task task) {
+        Project project = projectService.getProjectById(projectId);
+        if (project == null) {
+            return ResponseEntity.notFound().build();
+        }
 
-    // --- New Project-Specific Endpoints ---
+        // Link the task to the specific project before saving
+        task.setProject(project);
 
-    @GetMapping("/project/{projectId}")
-    public List<Task> getTasksByProject(@PathVariable Long projectId) {
-        return taskService.getTasksByProjectId(projectId);
-    }
+        // Give it a default status if one wasn't provided
+        if (task.getStatus() == null) {
+            task.setStatus("To Do");
+        }
 
-    @PostMapping("/project/{projectId}")
-    public Task createTaskForProject(@PathVariable Long projectId, @RequestBody Task task) {
-        return taskService.createTaskForProject(projectId, task);
+        Task savedTask = taskRepository.save(task);
+        return ResponseEntity.ok(savedTask);
     }
 }
