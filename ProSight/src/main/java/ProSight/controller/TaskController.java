@@ -44,7 +44,6 @@ public class TaskController {
 
         task.setProject(project);
 
-        // NEW: If an assignee ID is provided from the frontend, link the user
         if (assigneeId != null) {
             userRepository.findById(assigneeId).ifPresent(task::setAssignee);
         }
@@ -57,7 +56,6 @@ public class TaskController {
         return ResponseEntity.ok(savedTask);
     }
 
-    // NEW: Endpoint to assign or re-assign an existing task later
     @PutMapping("/tasks/{taskId}/assign/{userId}")
     public ResponseEntity<Task> assignTask(@PathVariable Long taskId, @PathVariable Long userId) {
         Task task = taskRepository.findById(taskId).orElse(null);
@@ -68,6 +66,19 @@ public class TaskController {
         }
 
         task.setAssignee(user);
+        return ResponseEntity.ok(taskRepository.save(task));
+    }
+
+    // Endpoint to update the status of an existing task for the progress bar
+    @PutMapping("/tasks/{taskId}/status")
+    public ResponseEntity<Task> updateTaskStatus(@PathVariable Long taskId, @RequestParam String status) {
+        Task task = taskRepository.findById(taskId).orElse(null);
+
+        if (task == null) {
+            return ResponseEntity.notFound().build();
+        }
+
+        task.setStatus(status);
         return ResponseEntity.ok(taskRepository.save(task));
     }
 }
