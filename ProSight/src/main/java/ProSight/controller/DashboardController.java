@@ -28,14 +28,14 @@ public class DashboardController {
     public ResponseEntity<Map<String, Object>> getDashboardStats() {
         Map<String, Object> stats = new HashMap<>();
 
-        // Count totals directly from the MySQL database
-        long totalProjects = projectRepository.count();
-        long totalUsers = userRepository.count();
-        long totalTasks = taskRepository.count();
+        stats.put("totalProjects", projectRepository.count());
+        stats.put("totalUsers", userRepository.count());
+        stats.put("totalTasks", taskRepository.count());
 
-        stats.put("totalProjects", totalProjects);
-        stats.put("totalUsers", totalUsers);
-        stats.put("totalTasks", totalTasks);
+        // NEW: Task breakdown for the Recharts Donut Chart
+        stats.put("todoTasks", taskRepository.countByStatus("To Do"));
+        stats.put("inProgressTasks", taskRepository.countByStatus("In Progress"));
+        stats.put("completedTasks", taskRepository.countByStatus("Completed"));
 
         return ResponseEntity.ok(stats);
     }
