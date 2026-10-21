@@ -12,12 +12,17 @@ public class Project {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    @Column(nullable = false)
     private String name;
+
     private Double budget;
     private Integer health;
 
+    // NEW: Field to track the Kanban column status
+    private String status = "planning"; // Default to the first column
+
     // One Project has Many Tasks
-    @OneToMany(mappedBy = "project", cascade = CascadeType.ALL, orphanRemoval = true)
+    @OneToMany(mappedBy = "project", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     @JsonManagedReference
     private List<Task> tasks;
 
@@ -33,6 +38,9 @@ public class Project {
 
     public Integer getHealth() { return health; }
     public void setHealth(Integer health) { this.health = health; }
+
+    public String getStatus() { return status; }
+    public void setStatus(String status) { this.status = status; }
 
     public List<Task> getTasks() { return tasks; }
     public void setTasks(List<Task> tasks) { this.tasks = tasks; }

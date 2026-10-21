@@ -40,9 +40,15 @@ public class ProjectController {
             return ResponseEntity.status(403).body("Unauthorized: Only Admins can create projects.");
         }
 
-        if (project.getHealth() == 0) {
+        if (project.getHealth() == null || project.getHealth() == 0) {
             project.setHealth(100); // Default new projects to perfect health
         }
+
+        // Ensure default status is set if not provided
+        if (project.getStatus() == null || project.getStatus().isEmpty()) {
+            project.setStatus("planning");
+        }
+
         return ResponseEntity.ok(projectRepository.save(project));
     }
 
@@ -58,5 +64,20 @@ public class ProjectController {
 
         projectRepository.deleteById(id);
         return ResponseEntity.ok("Project deleted successfully.");
+    }
+
+    // NEW: Endpoint to update project Kanban column status
+    @PutMapping("/{id}/status")
+    public ResponseEntity<Project> updateProjectStatus(
+            @PathVariable Long id,
+            @RequestParam String status) {
+
+        Project project = projectRepository.findById(id).orElse(null);
+        if (project == null) {
+            return ResponseEntity.notFound().build();
+        }
+
+        project.setStatus(status);
+        return ResponseEntity.ok(projectRepository.save(project));
     }
 }
