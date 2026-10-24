@@ -2,83 +2,64 @@ package ProSight.controller;
 
 import ProSight.entity.Project;
 import ProSight.entity.Task;
-import ProSight.entity.User;
+import ProSight.repository.ProjectRepository;
 import ProSight.repository.TaskRepository;
-import ProSight.repository.UserRepository;
-import ProSight.service.ProjectService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
 @RestController
-@RequestMapping("/api/projects")
+@RequestMapping("/api/projects/{projectId}/tasks")
 @CrossOrigin(origins = "*")
 public class TaskController {
 
     private final TaskRepository taskRepository;
-    private final ProjectService projectService;
-    private final UserRepository userRepository;
+    private final ProjectRepository projectRepository;
 
-    public TaskController(TaskRepository taskRepository, ProjectService projectService, UserRepository userRepository) {
+    public TaskController(TaskRepository taskRepository, ProjectRepository projectRepository) {
         this.taskRepository = taskRepository;
-        this.projectService = projectService;
-        this.userRepository = userRepository;
+        this.projectRepository = projectRepository;
     }
 
-    @GetMapping("/{projectId}/tasks")
-    public List<Task> getProjectTasks(@PathVariable Long projectId) {
-        return taskRepository.findByProjectId(projectId);
+    @GetMapping
+    public ResponseEntity<List<Task>> getTasksByProject(@PathVariable Long projectId) {
+        return ResponseEntity.ok(taskRepository.findByProjectId(projectId));
     }
 
-    @PostMapping("/{projectId}/tasks")
-    public ResponseEntity<Task> addTaskToProject(
-            @PathVariable Long projectId,
-            @RequestParam(required = false) Long assigneeId,
-            @RequestBody Task task) {
-
-        Project project = projectService.getProjectById(projectId);
-        if (project == null) {
-            return ResponseEntity.notFound().build();
-        }
-
-        task.setProject(project);
-
-        if (assigneeId != null) {
-            userRepository.findById(assigneeId).ifPresent(task::setAssignee);
-        }
-
-        if (task.getStatus() == null) {
-            task.setStatus("To Do");
-        }
-
-        Task savedTask = taskRepository.save(task);
-        return ResponseEntity.ok(savedTask);
+    @PostMapping
+    public ResponseEntity<?> addTaskToProject(@PathVariable Long projectId, @RequestBody Task task) {
+        return projectRepository.findById(projectId).map(project -> {
+            task.setProject(project);
+            if (task.getStatus() == null) {
+                task.setStatus("To Do");
+            }
+            if (task.getPriority() == null) {
+                task.setPriority("Medium");
+            }
+            return ResponseEntity.ok(taskRepository.save(task));
+        }).orElse(ResponseEntity.notFound().build());
     }
 
-    @PutMapping("/tasks/{taskId}/assign/{userId}")
-    public ResponseEntity<Task> assignTask(@PathVariable Long taskId, @PathVariable Long userId) {
-        Task task = taskRepository.findById(taskId).orElse(null);
-        User user = userRepository.findById(userId).orElse(null);
+    @PutMapping("/{taskId}")
+    public ResponseEntity<?> updateTask(@PathVariable Long projectId, @PathVariable Long taskId, @RequestBody Task taskDetails) {
+        return taskRepository.findById(taskId).map(task -> {
+            task.setName(taskDetails.getName());
+            task.setDescription(taskDetails.getDescription());
+            task.setStatus(taskDetails.getStatus());
+            task.setPriority(taskDetails.getPriority());
+            task.setDueDate(taskDetails.getDueDate());
+            task.setAssignee(taskDetails.getAssignee());
 
-        if (task == null || user == null) {
-            return ResponseEntity.notFound().build();
-        }
-
-        task.setAssignee(user);
-        return ResponseEntity.ok(taskRepository.save(task));
+            return ResponseEntity.ok(taskRepository.save(task));
+        }).orElse(ResponseEntity.notFound().build());
     }
 
-    // Endpoint to update the status of an existing task for the progress bar
-    @PutMapping("/tasks/{taskId}/status")
-    public ResponseEntity<Task> updateTaskStatus(@PathVariable Long taskId, @RequestParam String status) {
-        Task task = taskRepository.findById(taskId).orElse(null);
-
-        if (task == null) {
-            return ResponseEntity.notFound().build();
-        }
-
-        task.setStatus(status);
-        return ResponseEntity.ok(taskRepository.save(task));
+    @DeleteMapping("/{taskId}")
+    public ResponseEntity<?> deleteTask(@PathVariable Long projectId, @PathVariable Long taskId) {
+        return taskRepository.findById(taskId).map(task -> {
+            taskRepository.delete(task);
+            return ResponseEntity.ok().build();
+        }).orElse(ResponseEntity.notFound().build());
     }
 }
