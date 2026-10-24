@@ -24,7 +24,7 @@ public class DataSeeder implements CommandLineRunner {
             User admin = new User();
             admin.setUsername("Admin_06");
             admin.setPassword(passwordEncoder.encode("admin123")); // Default password
-            admin.setRole("ADMIN");
+            admin.setRole("ROLE_ADMIN");
             userRepository.save(admin);
             System.out.println("Seeded default Admin account.");
         }
@@ -34,7 +34,7 @@ public class DataSeeder implements CommandLineRunner {
             User member = new User();
             member.setUsername("Member_01");
             member.setPassword(passwordEncoder.encode("member123")); // Default password
-            member.setRole("MEMBER");
+            member.setRole("ROLE_MEMBER");
             userRepository.save(member);
             System.out.println("Seeded default Member account.");
         }
