@@ -1,7 +1,8 @@
 package ProSight.entity;
 
-import jakarta.persistence.*;
 import com.fasterxml.jackson.annotation.JsonBackReference;
+import jakarta.persistence.*;
+import java.time.LocalDate;
 
 @Entity
 @Table(name = "tasks")
@@ -11,8 +12,18 @@ public class Task {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    @Column(nullable = false)
+    private String name;
+
     private String description;
-    private String status;
+
+    // Status tracks the Kanban column (To Do, In Progress, Completed)
+    private String status = "To Do";
+
+    // NEW: Enterprise Task Metrics
+    private String priority = "Medium";
+    private LocalDate dueDate;
+    private String assignee;
 
     // Many Tasks belong to One Project
     @ManyToOne(fetch = FetchType.LAZY)
@@ -20,14 +31,12 @@ public class Task {
     @JsonBackReference
     private Project project;
 
-    // NEW: Link task to a specific User (Assignee)
-    @ManyToOne(fetch = FetchType.EAGER)
-    @JoinColumn(name = "assignee_id")
-    private User assignee;
-
     // Getters and Setters
     public Long getId() { return id; }
     public void setId(Long id) { this.id = id; }
+
+    public String getName() { return name; }
+    public void setName(String name) { this.name = name; }
 
     public String getDescription() { return description; }
     public void setDescription(String description) { this.description = description; }
@@ -35,9 +44,15 @@ public class Task {
     public String getStatus() { return status; }
     public void setStatus(String status) { this.status = status; }
 
+    public String getPriority() { return priority; }
+    public void setPriority(String priority) { this.priority = priority; }
+
+    public LocalDate getDueDate() { return dueDate; }
+    public void setDueDate(LocalDate dueDate) { this.dueDate = dueDate; }
+
+    public String getAssignee() { return assignee; }
+    public void setAssignee(String assignee) { this.assignee = assignee; }
+
     public Project getProject() { return project; }
     public void setProject(Project project) { this.project = project; }
-
-    public User getAssignee() { return assignee; }
-    public void setAssignee(User assignee) { this.assignee = assignee; }
 }
