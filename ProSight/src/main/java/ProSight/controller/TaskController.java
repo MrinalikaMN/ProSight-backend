@@ -56,4 +56,12 @@ public class TaskController {
             return ResponseEntity.ok(taskRepository.save(task));
         }).orElse(ResponseEntity.notFound().build());
     }
+    @DeleteMapping("/{projectId}/tasks/{taskId}")
+    public ResponseEntity<?> deleteTask(@PathVariable Long projectId, @PathVariable Long taskId) {
+        if (taskRepository.existsById(taskId)) {
+            taskRepository.deleteById(taskId);
+            return ResponseEntity.ok().build();
+        }
+        return ResponseEntity.notFound().build();
+    }
 }
