@@ -33,12 +33,7 @@ public class ProjectController {
     // SECURED: Only Admins can create projects
     @PostMapping
     public ResponseEntity<?> createProject(
-            @RequestHeader(value = "User-Role", defaultValue = "MEMBER") String role,
             @RequestBody Project project) {
-
-        if (!"ADMIN".equals(role)) {
-            return ResponseEntity.status(403).body("Unauthorized: Only Admins can create projects.");
-        }
 
         if (project.getHealth() == null || project.getHealth() == 0) {
             project.setHealth(100); // Default new projects to perfect health
