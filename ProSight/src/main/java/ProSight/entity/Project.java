@@ -1,30 +1,29 @@
 package ProSight.entity;
 
 import jakarta.persistence.*;
-import java.util.List;
-import com.fasterxml.jackson.annotation.JsonManagedReference;
+import java.time.LocalDate;
 
 @Entity
-@Table(name = "projects")
 public class Project {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(nullable = false)
     private String name;
-
-    private Double budget;
+    private String description;
+    private String status;
     private Integer health;
 
-    // NEW: Field to track the Kanban column status
-    private String status = "planning"; // Default to the first column
+    // New Analytics Fields
+    private Double allocatedBudget;
+    private Double actualSpent;
+    private LocalDate targetDate;
+    private LocalDate completionDate;
 
-    // One Project has Many Tasks
-    @OneToMany(mappedBy = "project", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
-    @JsonManagedReference
-    private List<Task> tasks;
+    // Constructors
+    public Project() {
+    }
 
     // Getters and Setters
     public Long getId() { return id; }
@@ -33,15 +32,24 @@ public class Project {
     public String getName() { return name; }
     public void setName(String name) { this.name = name; }
 
-    public Double getBudget() { return budget; }
-    public void setBudget(Double budget) { this.budget = budget; }
-
-    public Integer getHealth() { return health; }
-    public void setHealth(Integer health) { this.health = health; }
+    public String getDescription() { return description; }
+    public void setDescription(String description) { this.description = description; }
 
     public String getStatus() { return status; }
     public void setStatus(String status) { this.status = status; }
 
-    public List<Task> getTasks() { return tasks; }
-    public void setTasks(List<Task> tasks) { this.tasks = tasks; }
+    public Integer getHealth() { return health; }
+    public void setHealth(Integer health) { this.health = health; }
+
+    public Double getAllocatedBudget() { return allocatedBudget; }
+    public void setAllocatedBudget(Double allocatedBudget) { this.allocatedBudget = allocatedBudget; }
+
+    public Double getActualSpent() { return actualSpent; }
+    public void setActualSpent(Double actualSpent) { this.actualSpent = actualSpent; }
+
+    public LocalDate getTargetDate() { return targetDate; }
+    public void setTargetDate(LocalDate targetDate) { this.targetDate = targetDate; }
+
+    public LocalDate getCompletionDate() { return completionDate; }
+    public void setCompletionDate(LocalDate completionDate) { this.completionDate = completionDate; }
 }
