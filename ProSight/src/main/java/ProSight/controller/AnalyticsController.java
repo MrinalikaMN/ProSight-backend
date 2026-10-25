@@ -1,9 +1,12 @@
 package ProSight.controller;
 
 import ProSight.entity.Project;
+import ProSight.entity.Task;
 import ProSight.repository.ProjectRepository;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 
 import java.util.HashMap;
 import java.util.List;
@@ -23,19 +26,29 @@ public class AnalyticsController {
     public ResponseEntity<Map<String, Object>> getProjectAnalytics() {
         List<Project> projects = projectRepository.findAll();
 
-        int planning = 0, inProgress = 0, completed = 0;
-        double totalAllocated = 0.0, totalSpent = 0.0;
+        int planning = 0;
+        int inProgress = 0;
+        int completed = 0;
+        double totalAllocated = 0.0;
+        double totalSpent = 0.0;
 
         for (Project p : projects) {
-            // Count Statuses
             String status = p.getStatus() != null ? p.getStatus().toLowerCase() : "";
             if (status.contains("plan") || status.contains("todo")) planning++;
             else if (status.contains("progress")) inProgress++;
             else if (status.contains("complet")) completed++;
 
             // Sum Financials
-            if (p.getAllocatedBudget() != null) totalAllocated += p.getAllocatedBudget();
-            if (p.getActualSpent() != null) totalSpent += p.getActualSpent();
+            if (p.getBudget() != null) {
+                totalAllocated += p.getBudget();
+            }
+
+            if (p.getTasks() != null) {
+                double projectSpent = p.getTasks().stream()
+                        .mapToDouble(t -> t.getCost() != null ? t.getCost() : 0.0)
+                        .sum();
+                totalSpent += projectSpent;
+            }
         }
 
         double costSavings = totalAllocated - totalSpent;
@@ -47,7 +60,6 @@ public class AnalyticsController {
         metrics.put("totalAllocated", totalAllocated);
         metrics.put("totalSpent", totalSpent);
         metrics.put("costSavings", costSavings);
-        metrics.put("totalProjects", projects.size());
 
         return ResponseEntity.ok(metrics);
     }

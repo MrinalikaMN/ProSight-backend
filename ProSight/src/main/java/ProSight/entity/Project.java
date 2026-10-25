@@ -1,7 +1,7 @@
 package ProSight.entity;
 
 import jakarta.persistence.*;
-import java.time.LocalDate;
+import java.util.List;
 
 @Entity
 public class Project {
@@ -11,45 +11,26 @@ public class Project {
     private Long id;
 
     private String name;
-    private String description;
     private String status;
-    private Integer health;
+    private Double budget;
 
-    // New Analytics Fields
-    private Double allocatedBudget;
-    private Double actualSpent;
-    private LocalDate targetDate;
-    private LocalDate completionDate;
+    @OneToMany(mappedBy = "project", cascade = CascadeType.ALL)
+    private List<Task> tasks;
 
-    // Constructors
-    public Project() {
-    }
+    public Project() {}
 
-    // Getters and Setters
     public Long getId() { return id; }
     public void setId(Long id) { this.id = id; }
 
     public String getName() { return name; }
     public void setName(String name) { this.name = name; }
 
-    public String getDescription() { return description; }
-    public void setDescription(String description) { this.description = description; }
-
     public String getStatus() { return status; }
     public void setStatus(String status) { this.status = status; }
 
-    public Integer getHealth() { return health; }
-    public void setHealth(Integer health) { this.health = health; }
+    public Double getBudget() { return budget; }
+    public void setBudget(Double budget) { this.budget = budget; }
 
-    public Double getAllocatedBudget() { return allocatedBudget; }
-    public void setAllocatedBudget(Double allocatedBudget) { this.allocatedBudget = allocatedBudget; }
-
-    public Double getActualSpent() { return actualSpent; }
-    public void setActualSpent(Double actualSpent) { this.actualSpent = actualSpent; }
-
-    public LocalDate getTargetDate() { return targetDate; }
-    public void setTargetDate(LocalDate targetDate) { this.targetDate = targetDate; }
-
-    public LocalDate getCompletionDate() { return completionDate; }
-    public void setCompletionDate(LocalDate completionDate) { this.completionDate = completionDate; }
+    public List<Task> getTasks() { return tasks; }
+    public void setTasks(List<Task> tasks) { this.tasks = tasks; }
 }

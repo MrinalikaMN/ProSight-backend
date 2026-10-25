@@ -1,37 +1,31 @@
 package ProSight.entity;
 
-import com.fasterxml.jackson.annotation.JsonBackReference;
 import jakarta.persistence.*;
 import java.time.LocalDate;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 
 @Entity
-@Table(name = "tasks")
 public class Task {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(nullable = false)
     private String name;
-
     private String description;
-
-    // Status tracks the Kanban column (To Do, In Progress, Completed)
-    private String status = "To Do";
-
-    // NEW: Enterprise Task Metrics
-    private String priority = "Medium";
+    private String status;
     private LocalDate dueDate;
+    private String priority;
     private String assignee;
+    private Double cost;
 
-    // Many Tasks belong to One Project
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "project_id", nullable = false)
-    @JsonBackReference
+    @ManyToOne
+    @JoinColumn(name = "project_id")
+    @JsonIgnore
     private Project project;
 
-    // Getters and Setters
+    public Task() {}
+
     public Long getId() { return id; }
     public void setId(Long id) { this.id = id; }
 
@@ -44,14 +38,17 @@ public class Task {
     public String getStatus() { return status; }
     public void setStatus(String status) { this.status = status; }
 
-    public String getPriority() { return priority; }
-    public void setPriority(String priority) { this.priority = priority; }
-
     public LocalDate getDueDate() { return dueDate; }
     public void setDueDate(LocalDate dueDate) { this.dueDate = dueDate; }
 
+    public String getPriority() { return priority; }
+    public void setPriority(String priority) { this.priority = priority; }
+
     public String getAssignee() { return assignee; }
     public void setAssignee(String assignee) { this.assignee = assignee; }
+
+    public Double getCost() { return cost; }
+    public void setCost(Double cost) { this.cost = cost; }
 
     public Project getProject() { return project; }
     public void setProject(Project project) { this.project = project; }
