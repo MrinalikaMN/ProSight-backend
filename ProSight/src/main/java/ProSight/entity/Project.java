@@ -14,7 +14,7 @@ public class Project {
     private String status;
     private Double budget;
 
-    @OneToMany(mappedBy = "project", cascade = CascadeType.ALL)
+    @OneToMany(mappedBy = "project", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Task> tasks;
 
     public Project() {}
