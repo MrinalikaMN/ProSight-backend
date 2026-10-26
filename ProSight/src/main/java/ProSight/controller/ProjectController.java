@@ -22,24 +22,17 @@ public class ProjectController {
         return ResponseEntity.ok(projectRepository.findAll());
     }
 
-    // SECURED: Only Admins can create projects
     @PostMapping
     public ResponseEntity<?> createProject(@RequestBody Project project) {
-
-        // Ensure default budget is set if not provided
         if (project.getBudget() == null) {
             project.setBudget(0.0);
         }
-
-        // Ensure default status is set if not provided
         if (project.getStatus() == null || project.getStatus().isEmpty()) {
             project.setStatus("planning");
         }
-
         return ResponseEntity.ok(projectRepository.save(project));
     }
 
-    // NEW: Endpoint to update project details and budget
     @PutMapping("/{id}")
     public ResponseEntity<Project> updateProject(@PathVariable Long id, @RequestBody Project projectDetails) {
         return projectRepository.findById(id)
@@ -59,7 +52,6 @@ public class ProjectController {
                 .orElse(ResponseEntity.notFound().build());
     }
 
-    // SECURED: Only Admins can delete projects
     @DeleteMapping("/{id}")
     public ResponseEntity<?> deleteProject(@PathVariable Long id) {
         if (projectRepository.existsById(id)) {
