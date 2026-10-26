@@ -39,6 +39,26 @@ public class ProjectController {
         return ResponseEntity.ok(projectRepository.save(project));
     }
 
+    // NEW: Endpoint to update project details and budget
+    @PutMapping("/{id}")
+    public ResponseEntity<Project> updateProject(@PathVariable Long id, @RequestBody Project projectDetails) {
+        return projectRepository.findById(id)
+                .map(project -> {
+                    if (projectDetails.getName() != null) {
+                        project.setName(projectDetails.getName());
+                    }
+                    if (projectDetails.getStatus() != null) {
+                        project.setStatus(projectDetails.getStatus());
+                    }
+                    if (projectDetails.getBudget() != null) {
+                        project.setBudget(projectDetails.getBudget());
+                    }
+                    Project updatedProject = projectRepository.save(project);
+                    return ResponseEntity.ok(updatedProject);
+                })
+                .orElse(ResponseEntity.notFound().build());
+    }
+
     // SECURED: Only Admins can delete projects
     @DeleteMapping("/{id}")
     public ResponseEntity<?> deleteProject(@PathVariable Long id) {
