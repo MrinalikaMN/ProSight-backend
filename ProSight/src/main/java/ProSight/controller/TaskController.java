@@ -1,6 +1,5 @@
 package ProSight.controller;
 
-import ProSight.entity.Project;
 import ProSight.entity.Task;
 import ProSight.repository.ProjectRepository;
 import ProSight.repository.TaskRepository;
@@ -30,14 +29,8 @@ public class TaskController {
     public ResponseEntity<?> addTaskToProject(@PathVariable Long projectId, @RequestBody Task task) {
         return projectRepository.findById(projectId).map(project -> {
             task.setProject(project);
-            if (task.getStatus() == null) {
+            if (task.getStatus() == null || task.getStatus().isEmpty()) {
                 task.setStatus("To Do");
-            }
-            if (task.getPriority() == null) {
-                task.setPriority("Medium");
-            }
-            if (task.getCost() == null) {
-                task.setCost(0.0);
             }
             return ResponseEntity.ok(taskRepository.save(task));
         }).orElse(ResponseEntity.notFound().build());
@@ -46,16 +39,17 @@ public class TaskController {
     @PutMapping("/{projectId}/tasks/{taskId}")
     public ResponseEntity<?> updateTask(@PathVariable Long projectId, @PathVariable Long taskId, @RequestBody Task taskDetails) {
         return taskRepository.findById(taskId).map(task -> {
-            task.setName(taskDetails.getName());
-            task.setDescription(taskDetails.getDescription());
-            task.setStatus(taskDetails.getStatus());
-            task.setDueDate(taskDetails.getDueDate());
-            task.setPriority(taskDetails.getPriority());
-            task.setAssignee(taskDetails.getAssignee());
-            task.setCost(taskDetails.getCost());
+            if (taskDetails.getTitle() != null) task.setTitle(taskDetails.getTitle());
+            if (taskDetails.getDescription() != null) task.setDescription(taskDetails.getDescription());
+            if (taskDetails.getStatus() != null) task.setStatus(taskDetails.getStatus());
+            if (taskDetails.getDeadline() != null) task.setDeadline(taskDetails.getDeadline());
+            if (taskDetails.getPriority() != null) task.setPriority(taskDetails.getPriority());
+            if (taskDetails.getRole() != null) task.setRole(taskDetails.getRole());
+            if (taskDetails.getCost() != null) task.setCost(taskDetails.getCost());
             return ResponseEntity.ok(taskRepository.save(task));
         }).orElse(ResponseEntity.notFound().build());
     }
+
     @DeleteMapping("/{projectId}/tasks/{taskId}")
     public ResponseEntity<?> deleteTask(@PathVariable Long projectId, @PathVariable Long taskId) {
         if (taskRepository.existsById(taskId)) {
