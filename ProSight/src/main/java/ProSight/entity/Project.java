@@ -1,8 +1,6 @@
 package ProSight.entity;
 
 import jakarta.persistence.*;
-import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.NotNull;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -14,14 +12,8 @@ public class Project {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @NotBlank(message = "Project name is required")
-    @Column(nullable = false)
     private String name;
-
     private String status;
-
-    @NotNull(message = "Budget is required")
-    @Column(nullable = false)
     private Double budget;
 
     @OneToMany(mappedBy = "project", cascade = CascadeType.ALL, orphanRemoval = true)
