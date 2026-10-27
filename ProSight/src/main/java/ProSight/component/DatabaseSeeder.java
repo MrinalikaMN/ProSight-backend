@@ -20,6 +20,7 @@ public class DatabaseSeeder implements CommandLineRunner {
 
     @Override
     public void run(String... args) throws Exception {
+        System.out.println(">>> SEEDER IS RUNNING RIGHT NOW! <<<");
 
         // Only seed if no projects exist in the database yet
         if (projectRepository.count() == 0) {
