@@ -20,7 +20,8 @@ public class DatabaseSeeder implements CommandLineRunner {
 
     @Override
     public void run(String... args) throws Exception {
-        // Only seed if database is empty so it won't duplicate on every restart
+
+        // Only seed if no projects exist in the database yet
         if (projectRepository.count() == 0) {
 
             // ===============================
