@@ -23,7 +23,8 @@ public class DataSeeder implements CommandLineRunner {
         if (userRepository.findByUsername("Admin_06").isEmpty()) {
             User admin = new User();
             admin.setUsername("Admin_06");
-            admin.setPassword(passwordEncoder.encode("admin123")); // Default password
+            // Locally: admin123. On Railway set SEED_ADMIN_PASSWORD so the live admin password is not public.
+            admin.setPassword(passwordEncoder.encode(System.getenv().getOrDefault("SEED_ADMIN_PASSWORD", "admin123")));
             admin.setRole("ROLE_ADMIN");
             userRepository.save(admin);
             System.out.println("Seeded default Admin account.");
@@ -33,7 +34,8 @@ public class DataSeeder implements CommandLineRunner {
         if (userRepository.findByUsername("Member_01").isEmpty()) {
             User member = new User();
             member.setUsername("Member_01");
-            member.setPassword(passwordEncoder.encode("member123")); // Default password
+            // Locally: member123. On Railway set SEED_MEMBER_PASSWORD.
+            member.setPassword(passwordEncoder.encode(System.getenv().getOrDefault("SEED_MEMBER_PASSWORD", "member123")));
             member.setRole("ROLE_MEMBER");
             userRepository.save(member);
             System.out.println("Seeded default Member account.");
