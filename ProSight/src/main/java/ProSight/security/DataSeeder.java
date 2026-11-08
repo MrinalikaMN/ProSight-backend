@@ -6,6 +6,15 @@ import org.springframework.boot.CommandLineRunner;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Component;
 
+/**
+ * Makes sure the two starter accounts exist.
+ *
+ * Passwords:
+ *  - On your computer they default to admin123 / member123.
+ *  - On Railway, set SEED_ADMIN_PASSWORD and SEED_MEMBER_PASSWORD. If those are set, the accounts'
+ *    passwords are updated to match on every start, even if the accounts already existed,
+ *    so the live site never keeps the public default passwords.
+ */
 @Component
 public class DataSeeder implements CommandLineRunner {
 
@@ -19,26 +28,30 @@ public class DataSeeder implements CommandLineRunner {
 
     @Override
     public void run(String... args) {
-        // Automatically provision an Admin account if missing
-        if (userRepository.findByUsername("Admin_06").isEmpty()) {
-            User admin = new User();
-            admin.setUsername("Admin_06");
-            // Locally: admin123. On Railway set SEED_ADMIN_PASSWORD so the live admin password is not public.
-            admin.setPassword(passwordEncoder.encode(System.getenv().getOrDefault("SEED_ADMIN_PASSWORD", "admin123")));
-            admin.setRole("ROLE_ADMIN");
-            userRepository.save(admin);
-            System.out.println("Seeded default Admin account.");
+        ensureAccount("Admin_06", "ROLE_ADMIN", "SEED_ADMIN_PASSWORD", "admin123");
+        ensureAccount("Member_01", "ROLE_MEMBER", "SEED_MEMBER_PASSWORD", "member123");
+    }
+
+    private void ensureAccount(String username, String role, String envName, String localDefault) {
+        String fromEnv = System.getenv(envName);
+        boolean envSet = fromEnv != null && !fromEnv.isBlank();
+
+        User user = userRepository.findByUsername(username).orElse(null);
+        if (user == null) {
+            user = new User();
+            user.setUsername(username);
+            user.setRole(role);
+            user.setPassword(passwordEncoder.encode(envSet ? fromEnv : localDefault));
+            userRepository.save(user);
+            System.out.println(">>> Created starter account " + username + (envSet ? " (password from " + envName + ")" : " (local default password)") + " <<<");
+            return;
         }
 
-        // Automatically provision a Standard Member account if missing
-        if (userRepository.findByUsername("Member_01").isEmpty()) {
-            User member = new User();
-            member.setUsername("Member_01");
-            // Locally: member123. On Railway set SEED_MEMBER_PASSWORD.
-            member.setPassword(passwordEncoder.encode(System.getenv().getOrDefault("SEED_MEMBER_PASSWORD", "member123")));
-            member.setRole("ROLE_MEMBER");
-            userRepository.save(member);
-            System.out.println("Seeded default Member account.");
+        // Existing account: if the environment variable is set and differs, update the password.
+        if (envSet && !passwordEncoder.matches(fromEnv, user.getPassword())) {
+            user.setPassword(passwordEncoder.encode(fromEnv));
+            userRepository.save(user);
+            System.out.println(">>> Updated " + username + " password from " + envName + " <<<");
         }
     }
 }
