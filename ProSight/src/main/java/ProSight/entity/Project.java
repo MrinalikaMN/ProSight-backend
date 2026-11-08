@@ -1,5 +1,6 @@
 package ProSight.entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import java.util.ArrayList;
 import java.util.List;
@@ -16,6 +17,10 @@ public class Project {
     private String status;
     private Double budget;
 
+    // @JsonIgnore stops the endless Project -> Task -> Project loop when sending JSON.
+    // The frontend loads tasks separately from /api/projects/{id}/tasks.
+    // cascade + orphanRemoval: deleting a project also deletes its tasks.
+    @JsonIgnore
     @OneToMany(mappedBy = "project", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Task> tasks = new ArrayList<>();
 
@@ -27,7 +32,7 @@ public class Project {
         this.budget = budget;
     }
 
-    // Convenience methods for managing bidirectional relationship
+    // Convenience methods for managing the two-way relationship
     public void addTask(Task task) {
         tasks.add(task);
         task.setProject(this);

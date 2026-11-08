@@ -25,34 +25,32 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
     }
 
     @Override
-    protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain chain)
+    protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
             throws ServletException, IOException {
 
-        final String authorizationHeader = request.getHeader("Authorization");
+        String authHeader = request.getHeader("Authorization");
 
-        String username = null;
-        String jwt = null;
-
-        // Extract the token from the "Bearer <token>" header
-        if (authorizationHeader != null && authorizationHeader.startsWith("Bearer ")) {
-            jwt = authorizationHeader.substring(7);
-            username = jwtUtil.extractUsername(jwt);
-        }
-
-        // If a valid username is found and they aren't already authenticated in this session
-        if (username != null && SecurityContextHolder.getContext().getAuthentication() == null) {
-            UserDetails userDetails = this.userDetailsService.loadUserByUsername(username);
-
-            if (jwtUtil.validateToken(jwt, userDetails)) {
-                UsernamePasswordAuthenticationToken authToken = new UsernamePasswordAuthenticationToken(
-                        userDetails, null, userDetails.getAuthorities());
-                authToken.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
-
-                // Authorize the request
-                SecurityContextHolder.getContext().setAuthentication(authToken);
+        if (authHeader != null && authHeader.startsWith("Bearer ")) {
+            String jwt = authHeader.substring(7);
+            try {
+                String username = jwtUtil.extractUsername(jwt);
+                if (username != null && SecurityContextHolder.getContext().getAuthentication() == null) {
+                    UserDetails userDetails = userDetailsService.loadUserByUsername(username);
+                    if (jwtUtil.validateToken(jwt, userDetails)) {
+                        UsernamePasswordAuthenticationToken authToken =
+                                new UsernamePasswordAuthenticationToken(userDetails, null, userDetails.getAuthorities());
+                        authToken.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
+                        SecurityContextHolder.getContext().setAuthentication(authToken);
+                    }
+                }
+            } catch (Exception e) {
+                // Expired, tampered or old token (or the user no longer exists):
+                // treat the request as logged out instead of crashing.
+                // Spring Security then answers 403, and the frontend sends the user back to sign in.
+                SecurityContextHolder.clearContext();
             }
         }
 
-        chain.doFilter(request, response);
+        filterChain.doFilter(request, response);
     }
 }

@@ -17,7 +17,9 @@ import java.util.function.Function;
 public class JwtUtil {
 
     // In a real production app, this key should be loaded from environment variables
-    private static final Key SECRET_KEY = Keys.secretKeyFor(SignatureAlgorithm.HS256);
+    private static final Key SECRET_KEY = Keys.hmacShaKeyFor(
+            System.getenv().getOrDefault("JWT_SECRET", "prosight-local-dev-secret-change-me-0123456789abcdef")
+                    .getBytes(java.nio.charset.StandardCharsets.UTF_8));
     private static final long EXPIRATION_TIME = 1000 * 60 * 60 * 10; // 10 Hours
 
     public String extractUsername(String token) {

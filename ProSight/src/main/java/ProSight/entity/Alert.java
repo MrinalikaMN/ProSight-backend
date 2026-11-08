@@ -31,5 +31,9 @@ public class Alert {
     public void setStatus(String status) { this.status = status; }
     public void setProject(Project project) { this.project = project; }
 
+    public Long getId() { return id; }
+    public String getSeverity() { return severity; }
     public String getMessage() { return message; }
+    public String getStatus() { return status; }
+    public LocalDateTime getCreatedAt() { return createdAt; }
 }

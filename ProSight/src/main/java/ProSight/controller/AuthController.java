@@ -37,6 +37,16 @@ public class AuthController {
             return ResponseEntity.badRequest().body("Error: Username is already taken.");
         }
 
+        // Email is optional; if given it must look like an email address
+        if (user.getEmail() != null && !user.getEmail().isBlank()) {
+            if (!ProSight.service.NotificationService.isValidEmail(user.getEmail())) {
+                return ResponseEntity.badRequest().body("That email address doesn't look right.");
+            }
+            user.setEmail(user.getEmail().trim());
+        } else {
+            user.setEmail(null);
+        }
+
         // Cryptographically hash the password before saving
         user.setPassword(passwordEncoder.encode(user.getPassword()));
 

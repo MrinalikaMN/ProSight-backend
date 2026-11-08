@@ -1,7 +1,7 @@
 package ProSight.entity;
 
 import jakarta.persistence.*;
-import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import java.time.LocalDate;
 
 @Entity
@@ -18,7 +18,8 @@ public class Milestone {
 
     @ManyToOne
     @JoinColumn(name = "project_id")
-    @JsonIgnore
+    // Accepted when creating a milestone ({ "project": { "id": 1 } }), never sent back
+    @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
     private Project project;
 
     public Milestone() {
@@ -31,6 +32,8 @@ public class Milestone {
     public void setProject(Project project) { this.project = project; }
 
     // Getters
+    public Long getId() { return id; }
+    public void setId(Long id) { this.id = id; }
     public String getName() { return name; }
     public LocalDate getDueDate() { return dueDate; }
     public boolean isCompleted() { return isCompleted; }

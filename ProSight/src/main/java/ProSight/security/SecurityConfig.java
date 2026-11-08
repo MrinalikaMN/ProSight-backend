@@ -59,6 +59,9 @@ public class SecurityConfig {
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
                         .requestMatchers("/api/auth/**").permitAll()
+                        // Let Spring's error page through, so server errors show as errors
+                        // instead of being turned into "403 Forbidden".
+                        .requestMatchers("/error").permitAll()
                         // Enforce authentication for all project and task modifications
                         .requestMatchers("/api/projects/**").authenticated()
                         .anyRequest().authenticated()
