@@ -1,8 +1,14 @@
 package ProSight.controller;
 
 import ProSight.entity.Project;
+import ProSight.repository.AlertRepository;
+import ProSight.repository.MilestoneRepository;
 import ProSight.repository.ProjectRepository;
+import ProSight.repository.RecommendationRepository;
+import ProSight.repository.RiskRepository;
+import ProSight.repository.WarningRepository;
 import org.springframework.http.ResponseEntity;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -12,9 +18,24 @@ import java.util.List;
 public class ProjectController {
 
     private final ProjectRepository projectRepository;
+    private final RiskRepository riskRepository;
+    private final RecommendationRepository recommendationRepository;
+    private final AlertRepository alertRepository;
+    private final MilestoneRepository milestoneRepository;
+    private final WarningRepository warningRepository;
 
-    public ProjectController(ProjectRepository projectRepository) {
+    public ProjectController(ProjectRepository projectRepository,
+                             RiskRepository riskRepository,
+                             RecommendationRepository recommendationRepository,
+                             AlertRepository alertRepository,
+                             MilestoneRepository milestoneRepository,
+                             WarningRepository warningRepository) {
         this.projectRepository = projectRepository;
+        this.riskRepository = riskRepository;
+        this.recommendationRepository = recommendationRepository;
+        this.alertRepository = alertRepository;
+        this.milestoneRepository = milestoneRepository;
+        this.warningRepository = warningRepository;
     }
 
     @GetMapping
@@ -53,11 +74,20 @@ public class ProjectController {
     }
 
     @DeleteMapping("/{id}")
+    @Transactional
     public ResponseEntity<?> deleteProject(@PathVariable Long id) {
-        if (projectRepository.existsById(id)) {
-            projectRepository.deleteById(id);
-            return ResponseEntity.ok().build();
+        if (!projectRepository.existsById(id)) {
+            return ResponseEntity.notFound().build();
         }
-        return ResponseEntity.notFound().build();
+        // Remove everything that points at this project first, otherwise the database refuses
+        // to delete it. Tasks are removed automatically with the project (cascade in Project.java).
+        // @Transactional: either everything is deleted, or nothing is.
+        recommendationRepository.deleteAll(recommendationRepository.findByProjectId(id));
+        riskRepository.deleteAll(riskRepository.findByProjectId(id));
+        alertRepository.deleteAll(alertRepository.findByProjectId(id));
+        milestoneRepository.deleteAll(milestoneRepository.findByProjectId(id));
+        warningRepository.deleteAll(warningRepository.findByProjectId(id));
+        projectRepository.deleteById(id);
+        return ResponseEntity.ok().build();
     }
 }
